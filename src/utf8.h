@@ -65,6 +65,8 @@ inline void codepointToUTF8(unsigned int cp, t_codepoint * szOut)
 
 /** Extracts one Unicode codepoint from a string in UTF-8 encoding; updates position.
  */
+// WARNING: 20111015 winex: this is hand-written shit and doesn't work,
+// see http://rfc-ref.org/RFC-TEXTS/2640/chapter11.html
 inline unsigned int getOneCodepointFromUTF8(const std::string& str, size_t & position)
 {
   if (position >= str.length()) return -1;
@@ -79,7 +81,7 @@ inline unsigned int getOneCodepointFromUTF8(const std::string& str, size_t & pos
     return data[0];
   }
 
-  else if ((data[0] & 0xC0) == 0xC0)
+  else if ((data[0] & 0xE0) == 0xC0)
   {
     // 2 code units
 
@@ -87,11 +89,14 @@ inline unsigned int getOneCodepointFromUTF8(const std::string& str, size_t & pos
 
     data[1] = str[position++];
 
+    // what about 0xc2 0xa7, ffs?
+#if 0
     if ((data[1] & 0xF0) != 0xF0)
     {
       position = str.length();
       return -1;
     }
+#endif
 
     return ((data[0] & 0x1F) << 6) | (data[1] & 0x3F);
   }
