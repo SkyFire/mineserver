@@ -80,6 +80,7 @@ void PacketHandler::init()
   packets[PACKET_HOLDING_CHANGE]           = Packets(2, &PacketHandler::holding_change);
   packets[PACKET_ARM_ANIMATION]            = Packets(5, &PacketHandler::arm_animation);
   packets[PACKET_PICKUP_SPAWN]             = Packets(22, &PacketHandler::pickup_spawn);
+  packets[PACKET_SERVER_LIST_PING]         = Packets(0, &PacketHandler::server_list_ping);
   packets[PACKET_DISCONNECT]               = Packets(PACKET_VARIABLE_LEN, &PacketHandler::disconnect);
   packets[PACKET_RESPAWN]                  = Packets(0, &PacketHandler::respawn);
   packets[PACKET_INVENTORY_CHANGE]         = Packets(PACKET_VARIABLE_LEN, &PacketHandler::inventory_change);
@@ -1225,6 +1226,23 @@ int PacketHandler::pickup_spawn(User* user)
   item.pos += vec(x, 0, z);
 
   Mineserver::get()->map(user->pos.map)->sendPickupSpawn(item);
+
+  return PACKET_OK;
+}
+
+int PacketHandler::server_list_ping(User* user)
+{
+  user->buffer.removePacket();
+
+  // the creepy paragraph symbol. utf8: 0xc2 0xa7, utf16be: 0x00 0xa7
+  std::string sep = "\xc2\xa7";
+  std::string out;
+  /// TODO: 20111015 winex: we actually need logged-in users, not connections
+  int users = User::all().size();
+  int slots = Mineserver::get()->config()->iData("system.user_limit");
+
+  out = Mineserver::get()->config()->sData("system.server_name") + sep + dtos(users) + sep + dtos(slots);
+  user->kick(out);
 
   return PACKET_OK;
 }

@@ -71,6 +71,7 @@ enum
   PACKET_SET_SLOT                  = 0x67,
   PACKET_INVENTORY                 = 0x68,
   PACKET_SIGN                      = 0x82,
+  PACKET_SERVER_LIST_PING          = 0xfe,
   PACKET_DISCONNECT                = 0xff,
   //Server to client
   PACKET_LOGIN_RESPONSE            = 0x01,
@@ -308,6 +309,7 @@ public:
   static int holding_change(User* user);
   static int arm_animation(User* user);
   static int pickup_spawn(User* user);
+  static int server_list_ping(User* user);
   static int disconnect(User* user);
   static int use_entity(User* user);
   static int respawn(User* user);
